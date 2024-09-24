@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { TextInput } from 'react-native-web'
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { gStyle } from '../../styles/Style'
 
 export default function TaskEditor({ route }) {
@@ -42,6 +41,7 @@ const styles = StyleSheet.create({
 		borderRadius: 2,
 		outlineStyle: "none",
 		fontSize: 20,
+		width: "40%",
 		color: "white",
 		padding: 10,
 	},

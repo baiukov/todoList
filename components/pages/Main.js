@@ -1,14 +1,18 @@
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { FlatList, TouchableWithoutFeedback } from 'react-native-web'
+import { FlatList, StyleSheet, Text, TouchableHighlight, View } from 'react-native'
 import { Pages } from '../../enums/Pages'
-import Task from '../tasks/Task'
+import { Storage } from '../../Storage'
+import Task from '../Task'
 
 export default function Main({ navigation }) {
 
-	const addTask = (text) => {
-		let tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
+	const loadScene = () => {
+		navigation.navigate(Pages.EDITOR, { addTask: addTask }) 
+	}
 
+	const addTask = (text) => {
+		let tasks = JSON.parse(Storage.getItem("tasks") || "[]")
+		console.log(2, tasks)
 		let newTask = {
 			name: text,
 			isDone: false,
@@ -22,12 +26,9 @@ export default function Main({ navigation }) {
 			}
 		})
 		newTask ? tasks.push(newTask) : 0
-		localStorage.setItem("tasks", JSON.stringify(tasks))
+		navigation.goBack()
+		Storage.setItem("tasks", JSON.stringify(tasks))
 		setTasks(sortTasks(tasks))
-	}
-
-	const loadScene = () => {
-		navigation.navigate(Pages.EDITOR, { addTask: addTask })
 	}
 
 	const sortTasks = (tasks) => {
@@ -36,10 +37,11 @@ export default function Main({ navigation }) {
 		tasks.forEach((task) => {
 			task.isDone ? doneTasks.push(task) : toDoTasks.push(task)
 		})
+		console.log([...toDoTasks, ...doneTasks])
 		return [...toDoTasks, ...doneTasks]
 	}
 
-	const tasksData = JSON.parse(localStorage.getItem("tasks") || "[]")
+	const tasksData = JSON.parse(Storage.getItem("tasks") || "[]")
 	const [tasks, setTasks] = useState(sortTasks(tasksData))
 
 	const removeTask = (text) => {
@@ -47,7 +49,7 @@ export default function Main({ navigation }) {
 			if (task.name != text) return
 			task.isDone = true
 		})
-		localStorage.setItem("tasks", JSON.stringify(tasksData))
+		Storage.setItem("tasks", JSON.stringify(tasksData))
 		setTasks(sortTasks(tasksData))
 	}
 
@@ -57,17 +59,19 @@ export default function Main({ navigation }) {
 			<FlatList
 				data={tasks}
 				renderItem={({ item }) => (
-					<Task text={item.name || "Unknown task"} removeTask={removeTask} isDone={item.isDone} />
+					<Task 
+						text={item.name || "Unknown task"} 
+						removeTask={removeTask} 
+						isDone={item.isDone} 
+					/>
 				)}
 			/>
 
-			<TouchableWithoutFeedback onPress={loadScene}>
-				<View style={styles.mainButtonWrapper}>
-					<View style={styles.mainButton}>
-						<Text style={styles.mainButtonContent}>+</Text>
-					</View>
+			<TouchableHighlight style={styles.mainButtonWrapper} onPress={loadScene}>
+				<View style={styles.mainButton}>
+					<Text style={styles.mainButtonContent}>+</Text>
 				</View>
-			</TouchableWithoutFeedback>
+			</TouchableHighlight>
 
 		</View>
 	)
@@ -92,13 +96,13 @@ const styles = StyleSheet.create({
 	},
 	mainButtonWrapper: {
 		position: "absolute",
-		width: 50,
-		height: 50,
+		width: 100,
+		height: 100,
 		left: "50%",
-		bottom: 10,
+		bottom: 40,
 	},
 	mainButtonContent: {
-		fontSize: 24,
-		fontWeight: 700,
+		fontSize: 64,
+		fontWeight: 100,
 	}
 })
